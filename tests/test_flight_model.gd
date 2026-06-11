@@ -25,3 +25,9 @@ func test_drift_on_turn() -> void:
 	var v := Vector3.FORWARD * FM.MAX_SPEED
 	var v2 := FM.update_velocity(v, Vector3.RIGHT, 1.0, false, 1.0 / 60.0)
 	assert_true(v2.normalized().dot(Vector3.FORWARD) > 0.9, "velocity lags the nose (drift)")
+
+func test_can_land_requires_zone_and_low_speed() -> void:
+	assert_true(FM.can_land(true, 5.0, 8.0))
+	assert_eq(FM.can_land(false, 5.0, 8.0), false, "must be in landing zone")
+	assert_eq(FM.can_land(true, 9.0, 8.0), false, "too fast to land")
+	assert_eq(FM.can_land(true, 8.0, 8.0), false, "boundary speed is not landable")

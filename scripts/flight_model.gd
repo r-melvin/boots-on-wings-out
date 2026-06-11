@@ -13,3 +13,6 @@ static func update_velocity(velocity: Vector3, forward: Vector3, throttle: float
 	var target := Vector3.ZERO if braking else forward * throttle * MAX_SPEED
 	var response := BRAKE_RESPONSE if braking else ACCEL_RESPONSE
 	return velocity.lerp(target, 1.0 - exp(-response * delta))
+
+static func can_land(in_zone: bool, speed: float, max_speed: float) -> bool:
+	return in_zone and speed < max_speed
