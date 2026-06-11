@@ -6,6 +6,10 @@ on:
       - main
   workflow_dispatch:
 
+env:
+  GODOT_TEMPLATE_VERSION: 4.6.3.stable
+  GODOT_TEMPLATE_URL: https://github.com/godotengine/godot/releases/download/4.6.3-stable/Godot_v4.6.3-stable_export_templates.tpz
+
 permissions:
   contents: read
   pages: write
@@ -26,6 +30,23 @@ jobs:
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
+
+      - name: Restore export templates cache
+        id: templates-cache
+        uses: actions/cache@v4
+        with:
+          path: /github/home/.local/share/godot/export_templates/4.6.3.stable
+          key: godot-export-templates-4.6.3
+
+      - name: Install export templates
+        if: steps.templates-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p "$HOME/.local/share/godot/export_templates/$GODOT_TEMPLATE_VERSION"
+          curl -L --fail --retry 3 -o /tmp/godot-export-templates.tpz "$GODOT_TEMPLATE_URL"
+          unzip -q -j /tmp/godot-export-templates.tpz "templates/*" -d "$HOME/.local/share/godot/export_templates/$GODOT_TEMPLATE_VERSION"
+
+      - name: Prepare export directory
+        run: mkdir -p build/web
 
       - name: Export web build
         run: godot --headless --path . --export-release "Web" build/web/index.html
