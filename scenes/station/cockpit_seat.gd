@@ -23,4 +23,5 @@ func _ready() -> void:
 	add_child(mesh)
 
 func interact() -> void:
+	Quips.say("Wings out, baby.")
 	GameState.enter_flight()

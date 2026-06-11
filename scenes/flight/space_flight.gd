@@ -72,6 +72,7 @@ func _check_landing() -> void:
 	if can_land:
 		hud.show_prompt("[E] Land")
 		if Input.is_action_just_pressed("interact"):
+			Quips.say("Boots on.")
 			GameState.land()
 	else:
 		hud.hide_prompt()

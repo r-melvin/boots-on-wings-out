@@ -109,6 +109,9 @@ func _spawn_player() -> void:
 	if GameState.spawn_at_cockpit:
 		player.rotation.y = PI  # face the ship's open rear
 	GameState.spawn_at_cockpit = false
+	if GameState.just_died:
+		GameState.just_died = false
+		Quips.say("Walk it off.")
 
 # --- geometry helpers ---
 

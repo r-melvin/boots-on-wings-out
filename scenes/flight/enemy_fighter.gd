@@ -68,4 +68,5 @@ func _physics_process(delta: float) -> void:
 
 func take_ship_damage(dmg: int) -> void:
 	if health.take_damage(dmg):
+		Quips.fighter_kill()
 		queue_free()

@@ -124,6 +124,7 @@ func take_hit(dmg: int) -> void:
 		death_timer = 0.0
 		GameState.mark_cleared(enemy_id)
 		set_collision_layer_value(1, false)
+		Quips.grunt_kill()
 	else:
 		state = State.PAIN
 		pain_timer = 0.25

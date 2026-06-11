@@ -11,6 +11,7 @@ var mode: Mode = Mode.FPS
 var player_health: int = MAX_HEALTH
 var ship_hull: int = MAX_HULL
 var spawn_at_cockpit := false
+var just_died := false
 var cleared_enemies: Dictionary = {}
 
 func enter_flight() -> void:
@@ -45,6 +46,7 @@ func is_cleared(enemy_id: String) -> bool:
 func _player_died() -> void:
 	player_health = MAX_HEALTH
 	spawn_at_cockpit = false
+	just_died = true
 	mode = Mode.FPS
 	_change_scene(STATION_SCENE)
 
