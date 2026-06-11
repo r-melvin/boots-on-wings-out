@@ -57,9 +57,9 @@ func _spawn_ship() -> void:
 	add_child(ship)
 	ship.look_at(Vector3(0, 15, 500))
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	_check_landing()
-	_check_bounds()
+	_check_bounds(delta)
 
 func _check_landing() -> void:
 	var can_land: bool = pad_area.overlaps_body(ship) \
@@ -71,11 +71,11 @@ func _check_landing() -> void:
 	else:
 		hud.hide_prompt()
 
-func _check_bounds() -> void:
+func _check_bounds(delta: float) -> void:
 	var out := ship.global_position.length() > BOUNDS_RADIUS
 	hud.set_warning(out)
 	if out:
-		ship.velocity -= ship.global_position.normalized() * 2.0
+		ship.velocity -= ship.global_position.normalized() * 120.0 * delta
 
 func _big_box(pos: Vector3, size: Vector3, color: Color) -> void:
 	var mesh := MeshInstance3D.new()
