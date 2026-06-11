@@ -55,7 +55,7 @@ func _ready() -> void:
 	add_child(lead_marker)
 
 func _process(_delta: float) -> void:
-	if ship == null:
+	if ship == null or not visible:
 		return
 	speed_label.text = "SPD %d" % int(ship.velocity.length())
 	hull_label.text = "HULL %d" % GameState.ship_hull
