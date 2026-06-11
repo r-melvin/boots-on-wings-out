@@ -13,6 +13,7 @@ var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var head: Node3D
 var camera: Camera3D
 var hud: CanvasLayer
+var collider: CollisionShape3D
 
 func _ready() -> void:
 	add_to_group("player")
@@ -23,6 +24,7 @@ func _ready() -> void:
 	col.shape = cap
 	col.position = Vector3(0, 0.9, 0)
 	add_child(col)
+	collider = col
 	head = Node3D.new()
 	head.position = Vector3(0, 1.6, 0)
 	add_child(head)
@@ -56,6 +58,15 @@ func _physics_process(delta: float) -> void:
 		velocity.z = move_toward(velocity.z, 0.0, speed)
 	move_and_slide()
 	_update_interact()
+
+func set_control_enabled(on: bool) -> void:
+	visible = on
+	collider.disabled = not on
+	process_mode = PROCESS_MODE_INHERIT if on else PROCESS_MODE_DISABLED
+	camera.current = on
+	hud.visible = on
+	if on:
+		velocity = Vector3.ZERO
 
 func _update_interact() -> void:
 	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
