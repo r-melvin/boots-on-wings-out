@@ -127,3 +127,4 @@ func take_hit(dmg: int) -> void:
 	else:
 		state = State.PAIN
 		pain_timer = 0.25
+		windup = 0.0

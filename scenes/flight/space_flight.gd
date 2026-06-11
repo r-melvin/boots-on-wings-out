@@ -64,6 +64,9 @@ func _physics_process(delta: float) -> void:
 	_check_bounds(delta)
 
 func _check_landing() -> void:
+	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+		hud.hide_prompt()
+		return
 	var can_land: bool = pad_area.overlaps_body(ship) \
 		and ship.velocity.length() < LANDING_SPEED_MAX
 	if can_land:
