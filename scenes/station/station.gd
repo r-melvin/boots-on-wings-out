@@ -2,6 +2,7 @@ extends Node3D
 
 const FpsPlayerScript := preload("res://scenes/player/fps_player.gd")
 const CockpitSeatScript := preload("res://scenes/station/cockpit_seat.gd")
+const GruntScript := preload("res://scenes/enemies/grunt.gd")
 
 const WALL_H := 3.5
 const WALL_T := 0.3
@@ -18,6 +19,7 @@ func _ready() -> void:
 	_navmesh()
 	_kill_plane()
 	_spawn_player()
+	_spawn_grunts()
 
 func _environment() -> void:
 	var env := Environment.new()
@@ -85,6 +87,20 @@ func _kill_plane() -> void:
 func _on_kill_plane(body: Node3D) -> void:
 	if body.is_in_group("player"):
 		GameState.damage_player(9999)
+
+func _spawn_grunts() -> void:
+	var placements := [
+		["grunt_b1", Vector3(-3, 0.1, -18)],
+		["grunt_b2", Vector3(3, 0.1, -13)],
+		["grunt_h1", Vector3(20, 0.1, -10)],
+	]
+	for p in placements:
+		if GameState.is_cleared(p[0]):
+			continue
+		var g = GruntScript.new()
+		g.enemy_id = p[0]
+		g.position = p[1]
+		add_child(g)
 
 func _spawn_player() -> void:
 	var player = FpsPlayerScript.new()
