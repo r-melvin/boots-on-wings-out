@@ -3,6 +3,7 @@ extends Node3D
 const PlayerShipScript := preload("res://scenes/flight/player_ship.gd")
 const FlightHudScript := preload("res://scenes/flight/flight_hud.gd")
 const TexLoaderScript := preload("res://scripts/tex_loader.gd")
+const EnemyFighterScript := preload("res://scenes/flight/enemy_fighter.gd")
 
 const LANDING_SPEED_MAX := 8.0
 const BOUNDS_RADIUS := 4000.0
@@ -18,6 +19,7 @@ func _ready() -> void:
 	hud = FlightHudScript.new()
 	hud.setup(ship)
 	add_child(hud)
+	_spawn_fighters()
 
 func _environment() -> void:
 	var sky_mat := PanoramaSkyMaterial.new()
@@ -94,3 +96,9 @@ func _big_box(pos: Vector3, size: Vector3, color: Color) -> void:
 	body.add_child(col)
 	mesh.add_child(body)
 	add_child(mesh)
+
+func _spawn_fighters() -> void:
+	for pos in [Vector3(300, 60, -250), Vector3(-280, -40, -350), Vector3(150, -80, -450)]:
+		var f = EnemyFighterScript.new()
+		f.position = pos
+		add_child(f)

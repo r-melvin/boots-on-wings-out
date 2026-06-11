@@ -6,6 +6,7 @@ var hull_label: Label
 var throttle_bar: ProgressBar
 var prompt_label: Label
 var warn_label: Label
+var lead_marker: Label
 
 func setup(p_ship: Node3D) -> void:
 	ship = p_ship
@@ -48,12 +49,18 @@ func _ready() -> void:
 	warn_label.visible = false
 	add_child(warn_label)
 
+	lead_marker = Label.new()
+	lead_marker.text = "[ ]"
+	lead_marker.visible = false
+	add_child(lead_marker)
+
 func _process(_delta: float) -> void:
 	if ship == null:
 		return
 	speed_label.text = "SPD %d" % int(ship.velocity.length())
 	hull_label.text = "HULL %d" % GameState.ship_hull
 	throttle_bar.value = ship.throttle
+	_update_lead()
 
 func show_prompt(text: String) -> void:
 	prompt_label.text = text
@@ -64,3 +71,28 @@ func hide_prompt() -> void:
 
 func set_warning(on: bool) -> void:
 	warn_label.visible = on
+
+func _update_lead() -> void:
+	var cam := ship.get_viewport().get_camera_3d()
+	var target := _nearest_fighter()
+	if cam == null or target == null:
+		lead_marker.visible = false
+		return
+	var dist: float = (target.global_position - ship.global_position).length()
+	# 200.0 = bolt speed: aim where the target will be when the bolt arrives
+	var predicted: Vector3 = target.global_position + target.velocity * (dist / 200.0)
+	if cam.is_position_behind(predicted):
+		lead_marker.visible = false
+		return
+	lead_marker.position = cam.unproject_position(predicted) - Vector2(12, 12)
+	lead_marker.visible = true
+
+func _nearest_fighter() -> Node3D:
+	var best: Node3D = null
+	var best_d := INF
+	for f in get_tree().get_nodes_in_group("enemy_fighter"):
+		var d: float = (f.global_position - ship.global_position).length()
+		if d < best_d:
+			best_d = d
+			best = f
+	return best
