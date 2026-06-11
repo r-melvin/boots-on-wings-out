@@ -18,6 +18,13 @@ const SHIP_PARK := Vector3(24, 0.8, -16)
 const LANDING_SPEED_MAX := 8.0
 const BOUNDS_RADIUS := 4000.0
 
+# Surfaces a disembarking player can stand on: hangar floor, apron, opening sill (x/z rects).
+const WALKABLE_RECTS: Array[Rect2] = [
+	Rect2(14, -25, 20, 18),
+	Rect2(36, -25, 18, 18),
+	Rect2(34, -21, 2, 10),
+]
+
 var player: CharacterBody3D
 var ship: CharacterBody3D
 var flight_hud: CanvasLayer
@@ -201,7 +208,14 @@ func _exit_spot() -> Vector3:
 	return COCKPIT_SPAWN  # guaranteed-walkable fallback
 
 func _spot_clear(spot: Vector3) -> bool:
-	# Open space for the player capsule plus solid ground beneath it.
+	# Must be over a walkable surface and have open space for the player capsule.
+	var on_floor := false
+	for r in WALKABLE_RECTS:
+		if r.has_point(Vector2(spot.x, spot.z)):
+			on_floor = true
+			break
+	if not on_floor:
+		return false
 	var space := get_world_3d().direct_space_state
 	var shape := CapsuleShape3D.new()
 	shape.height = 1.8
@@ -210,12 +224,7 @@ func _spot_clear(spot: Vector3) -> bool:
 	params.shape = shape
 	params.transform = Transform3D(Basis(), spot + Vector3(0, 0.95, 0))
 	params.exclude = [ship.get_rid(), ship.seat.get_rid()]
-	if not space.intersect_shape(params, 1).is_empty():
-		return false
-	var ray := PhysicsRayQueryParameters3D.create(
-		spot + Vector3(0, 0.5, 0), spot + Vector3(0, -2.0, 0))
-	ray.exclude = [ship.get_rid(), ship.seat.get_rid()]
-	return not space.intersect_ray(ray).is_empty()
+	return space.intersect_shape(params, 1).is_empty()
 
 func _physics_process(delta: float) -> void:
 	if ship.state != PlayerShipScript.State.ACTIVE:
