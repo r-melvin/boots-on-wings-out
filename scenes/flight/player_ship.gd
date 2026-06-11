@@ -25,7 +25,6 @@ func _ready() -> void:
 	cam.position = Vector3(0, 2.2, 7.0)
 	cam.far = 8000.0
 	add_child(cam)
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func _build_mesh() -> void:
 	var hull_mat := StandardMaterial3D.new()
@@ -46,9 +45,6 @@ func _build_mesh() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		mouse_delta += event.relative
-	elif event.is_action_pressed("ui_cancel"):
-		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE \
-			if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED else Input.MOUSE_MODE_CAPTURED
 
 func _physics_process(delta: float) -> void:
 	rotate_object_local(Vector3.RIGHT, -mouse_delta.y * MOUSE_SENS)

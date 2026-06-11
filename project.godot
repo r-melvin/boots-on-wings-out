@@ -11,13 +11,14 @@ config_version=5
 [application]
 
 config/name="Boots On, Wings Out"
+run/main_scene="res://scenes/station/station.tscn"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
-run/main_scene="res://scenes/station/station.tscn"
 
 [autoload]
 
 InputSetup="*res://autoload/input_setup.gd"
+MouseCapture="*res://autoload/mouse_capture.gd"
 GameState="*res://autoload/game_state.gd"
 Quips="*res://autoload/quips.gd"
 
