@@ -42,7 +42,7 @@ jobs:
         if: steps.templates-cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p "$HOME/.local/share/godot/export_templates/$GODOT_TEMPLATE_VERSION"
-          curl -L --fail --retry 3 -o /tmp/godot-export-templates.tpz "$GODOT_TEMPLATE_URL"
+          wget -O /tmp/godot-export-templates.tpz "$GODOT_TEMPLATE_URL"
           unzip -q -j /tmp/godot-export-templates.tpz "templates/*" -d "$HOME/.local/share/godot/export_templates/$GODOT_TEMPLATE_VERSION"
 
       - name: Prepare export directory
