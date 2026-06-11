@@ -38,6 +38,8 @@ func _ready() -> void:
 		add_child(m)
 
 func _physics_process(delta: float) -> void:
+	if GameState.mode != GameState.Mode.FLIGHT:
+		return
 	var player := get_tree().get_first_node_in_group("player_ship")
 	if player == null:
 		return

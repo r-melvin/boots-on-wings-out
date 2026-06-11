@@ -2,14 +2,23 @@ extends CharacterBody3D
 
 const FM := preload("res://scripts/flight_model.gd")
 const BoltScript := preload("res://scenes/flight/bolt.gd")
+const SeatScript := preload("res://scenes/world/cockpit_seat.gd")
+
+enum State { PARKED, ACTIVE }
 
 const ROLL_SPEED := 1.8
 const MOUSE_SENS := 0.0015
 const FIRE_INTERVAL := 0.15
+const PARK_HEIGHT := 0.8
 
-var throttle := 0.2
+signal board_requested
+
+var state := State.PARKED
+var throttle := 0.0
 var mouse_delta := Vector2.ZERO
 var fire_cd := 0.0
+var cam: Camera3D
+var seat: StaticBody3D
 
 func _ready() -> void:
 	motion_mode = CharacterBody3D.MOTION_MODE_FLOATING
@@ -20,11 +29,14 @@ func _ready() -> void:
 	col.shape = shape
 	add_child(col)
 	_build_mesh()
-	var cam := Camera3D.new()
-	cam.current = true
+	cam = Camera3D.new()
 	cam.position = Vector3(0, 2.2, 7.0)
 	cam.far = 8000.0
 	add_child(cam)
+	seat = SeatScript.new()
+	seat.position = Vector3(0, -0.8, 3.2)
+	add_child(seat)
+	seat.activated.connect(func(): board_requested.emit())
 
 func _build_mesh() -> void:
 	var hull_mat := StandardMaterial3D.new()
@@ -42,11 +54,46 @@ func _build_mesh() -> void:
 		m.position = def[0]
 		add_child(m)
 
+func activate() -> void:
+	state = State.ACTIVE
+	throttle = 0.0
+	cam.current = true
+	seat.set_enabled(false)
+
+func park() -> void:
+	state = State.PARKED
+	velocity = Vector3.ZERO
+	mouse_delta = Vector2.ZERO
+	throttle = 0.0
+	cam.current = false
+	_level_out()
+	_settle_to_ground()
+	seat.set_enabled(true)
+
+func _level_out() -> void:
+	# Keep yaw, zero pitch/roll, so the seat ends up at floor level.
+	var fwd := -global_transform.basis.z
+	fwd.y = 0.0
+	if fwd.length() > 0.1:
+		look_at(global_position + fwd.normalized())
+
+func _settle_to_ground() -> void:
+	var space := get_world_3d().direct_space_state
+	var query := PhysicsRayQueryParameters3D.create(
+		global_position, global_position + Vector3.DOWN * 12.0)
+	query.exclude = [get_rid()]
+	var hit := space.intersect_ray(query)
+	if hit:
+		global_position.y = hit.position.y + PARK_HEIGHT
+
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+	if state == State.ACTIVE and event is InputEventMouseMotion \
+			and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		mouse_delta += event.relative
 
 func _physics_process(delta: float) -> void:
+	if state != State.ACTIVE:
+		return
 	rotate_object_local(Vector3.RIGHT, -mouse_delta.y * MOUSE_SENS)
 	rotate_object_local(Vector3.UP, -mouse_delta.x * MOUSE_SENS)
 	mouse_delta = Vector2.ZERO
