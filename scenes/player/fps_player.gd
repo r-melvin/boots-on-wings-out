@@ -67,6 +67,7 @@ func set_control_enabled(on: bool) -> void:
 	hud.visible = on
 	if on:
 		velocity = Vector3.ZERO
+		head.rotation.x = 0.0
 
 func _update_interact() -> void:
 	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:

@@ -123,10 +123,10 @@ func _landing_zone() -> void:
 	landing_zone = Area3D.new()
 	var col := CollisionShape3D.new()
 	var shape := BoxShape3D.new()
-	shape.size = Vector3(40, 6, 18)
+	shape.size = Vector3(40, 4, 18)
 	col.shape = shape
 	landing_zone.add_child(col)
-	landing_zone.position = Vector3(34, 2.85, -16)
+	landing_zone.position = Vector3(34, 1.85, -16)
 	add_child(landing_zone)
 
 func _spawn_ship() -> void:
@@ -177,14 +177,45 @@ func _board_ship() -> void:
 func _exit_ship() -> void:
 	Quips.say("Boots on.")
 	ship.park()
-	var out: Vector3 = ship.global_transform.basis.z
-	out.y = 0.0
-	out = out.normalized() if out.length() > 0.3 else Vector3(0, 0, 1)
-	player.global_position = ship.global_position + out * 5.0 + Vector3(0, -0.7, 0)
+	Input.action_release("interact")  # same press must not re-trigger seat interact
+	player.global_position = _exit_spot()
+	var to_ship: Vector3 = ship.global_position - player.global_position
+	player.rotation.y = atan2(-to_ship.x, -to_ship.z)
 	player.set_control_enabled(true)
 	flight_hud.visible = false
 	flight_hud.hide_prompt()
 	GameState.land()
+
+func _exit_spot() -> Vector3:
+	# Try behind, then either side, then ahead of the ship; first clear spot wins.
+	var b := ship.global_transform.basis
+	for dir in [b.z, -b.x, b.x, -b.z]:
+		var d: Vector3 = dir
+		d.y = 0.0
+		if d.length() < 0.3:
+			continue
+		var spot: Vector3 = ship.global_position + d.normalized() * 5.0
+		spot.y = ship.global_position.y - 0.7
+		if _spot_clear(spot):
+			return spot
+	return COCKPIT_SPAWN  # guaranteed-walkable fallback
+
+func _spot_clear(spot: Vector3) -> bool:
+	# Open space for the player capsule plus solid ground beneath it.
+	var space := get_world_3d().direct_space_state
+	var shape := CapsuleShape3D.new()
+	shape.height = 1.8
+	shape.radius = 0.35
+	var params := PhysicsShapeQueryParameters3D.new()
+	params.shape = shape
+	params.transform = Transform3D(Basis(), spot + Vector3(0, 0.95, 0))
+	params.exclude = [ship.get_rid(), ship.seat.get_rid()]
+	if not space.intersect_shape(params, 1).is_empty():
+		return false
+	var ray := PhysicsRayQueryParameters3D.create(
+		spot + Vector3(0, 0.5, 0), spot + Vector3(0, -2.0, 0))
+	ray.exclude = [ship.get_rid(), ship.seat.get_rid()]
+	return not space.intersect_ray(ray).is_empty()
 
 func _physics_process(delta: float) -> void:
 	if ship.state != PlayerShipScript.State.ACTIVE:

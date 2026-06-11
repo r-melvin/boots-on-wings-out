@@ -125,4 +125,6 @@ func _fire() -> void:
 		get_parent().add_child(b)
 
 func take_ship_damage(dmg: int) -> void:
+	if state != State.ACTIVE:
+		return
 	GameState.damage_ship(dmg)
