@@ -16,7 +16,7 @@ func test_enter_flight_and_land() -> void:
 	assert_eq(gs.mode, GS.Mode.FLIGHT)
 	gs.land()
 	assert_eq(gs.mode, GS.Mode.FPS)
-	assert_eq(gs.spawn_at_cockpit, true, "landing returns player to cockpit")
+	assert_eq(gs.spawn_at_cockpit, false, "seamless landing needs no respawn flag")
 	gs.free()
 
 func test_damage_player_non_lethal() -> void:

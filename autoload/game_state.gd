@@ -2,8 +2,7 @@ extends Node
 
 enum Mode { FPS, FLIGHT }
 
-const STATION_SCENE := "res://scenes/station/station.tscn"
-const FLIGHT_SCENE := "res://scenes/flight/space_flight.tscn"
+const WORLD_SCENE := "res://scenes/world/world.tscn"
 const MAX_HEALTH := 100
 const MAX_HULL := 100
 
@@ -16,12 +15,9 @@ var cleared_enemies: Dictionary = {}
 
 func enter_flight() -> void:
 	mode = Mode.FLIGHT
-	_change_scene(FLIGHT_SCENE)
 
 func land() -> void:
 	mode = Mode.FPS
-	spawn_at_cockpit = true
-	_change_scene(STATION_SCENE)
 
 func damage_player(amount: int) -> bool:
 	player_health = maxi(player_health - amount, 0)
@@ -48,13 +44,13 @@ func _player_died() -> void:
 	spawn_at_cockpit = false
 	just_died = true
 	mode = Mode.FPS
-	_change_scene(STATION_SCENE)
+	_change_scene(WORLD_SCENE)
 
 func _ship_destroyed() -> void:
 	ship_hull = MAX_HULL
 	spawn_at_cockpit = true
 	mode = Mode.FPS
-	_change_scene(STATION_SCENE)
+	_change_scene(WORLD_SCENE)
 
 func _change_scene(path: String) -> void:
 	# No-op outside the tree so pure-logic tests can instantiate this script.
