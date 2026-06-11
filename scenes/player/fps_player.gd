@@ -62,6 +62,9 @@ func _physics_process(delta: float) -> void:
 	_update_interact()
 
 func _update_interact() -> void:
+	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+		hud.hide_prompt()
+		return
 	var space := get_world_3d().direct_space_state
 	var from := camera.global_position
 	var to := from - camera.global_transform.basis.z * INTERACT_RANGE
