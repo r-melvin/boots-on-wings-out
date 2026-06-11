@@ -74,6 +74,9 @@ func _level_out() -> void:
 	# Keep yaw, zero pitch/roll, so the seat ends up at floor level.
 	var fwd := -global_transform.basis.z
 	fwd.y = 0.0
+	if fwd.length() < 0.1:
+		fwd = global_transform.basis.y  # nose near-vertical: use up vector for yaw
+		fwd.y = 0.0
 	if fwd.length() > 0.1:
 		look_at(global_position + fwd.normalized())
 
@@ -81,7 +84,7 @@ func _settle_to_ground() -> void:
 	var space := get_world_3d().direct_space_state
 	var query := PhysicsRayQueryParameters3D.create(
 		global_position, global_position + Vector3.DOWN * 12.0)
-	query.exclude = [get_rid()]
+	query.exclude = [get_rid(), seat.get_rid()]
 	var hit := space.intersect_ray(query)
 	if hit:
 		global_position.y = hit.position.y + PARK_HEIGHT
