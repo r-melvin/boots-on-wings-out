@@ -72,8 +72,8 @@ survive a scene swap. No save files; state is per-session.
 - **HUD:** Speed, throttle bar, crosshair with lead reticle, hull integrity,
   landing prompt when near the pad.
 - **Landing:** A trigger zone at the station pad. When the player is inside it
-  below a speed threshold, show a prompt; pressing E plays a short auto-align
-  tween, then calls `GameState.land()`.
+  below a speed threshold, show a prompt; pressing E lands immediately and calls
+  `GameState.land()` (no alignment animation — prototype cut).
 
 ## Assets (all generated)
 
@@ -96,8 +96,10 @@ survive a scene swap. No save files; state is per-session.
 
 ## Testing
 
-- **Unit tests (GUT):** Pure logic only — GameState transitions, damage/health
-  math, throttle/velocity model maths.
+- **Unit tests (minimal custom GDScript harness):** Pure logic only — GameState
+  transitions, damage/health math, throttle/velocity model maths. A small
+  `run_tests.gd` script run via `godot --headless --script`; avoids the GUT
+  addon download and its headless setup.
 - **Smoke tests:** Each scene instantiates headless without script errors.
 - **Manual checklist:** Feel, AI behaviour, and the full loop verified by hand
   against a documented checklist (movement feel, enemy reactions, transition
